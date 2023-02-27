@@ -1,0 +1,27 @@
+﻿
+h1{
+    color: red;    
+}
+
+
+.accordion-cuentas button > span {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.accordion-cuentas button {
+    color: black !important;
+    font-size: 20px;
+    width: 100%;
+    display: flex;
+}
+
+.accordion-cuentas ul li {
+    display: flex;
+    justify-content: space-between;
+}
+
+.accordion-cuentas .accordion-collapse {
+    font-size: 18px;
+}

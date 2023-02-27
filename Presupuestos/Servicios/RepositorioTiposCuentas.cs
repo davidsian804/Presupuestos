@@ -7,10 +7,12 @@ namespace Presupuestos.Servicios
     public interface IRepositoriosTiposCuentas
     {
         Task Actualizar(TipoCuenta tipoCuenta);
+        Task Borrar(int id);
         Task Crear(TipoCuenta tipoCuenta);
         Task<bool> Existe(string nombre, int usuarioId);
         Task<IEnumerable<TipoCuenta>> Obtener(int usuarioId);
         Task<TipoCuenta> ObtenerPorId(int id, int usuarioId);
+        Task Ordenar(IEnumerable<TipoCuenta> tiposCuentasOrdenados);
     }
 
     public class RepositorioTiposCuentas: IRepositoriosTiposCuentas
@@ -18,7 +20,7 @@ namespace Presupuestos.Servicios
         private readonly string connectionString;
         public RepositorioTiposCuentas(IConfiguration configuration)
         {
-            connectionString = configuration.GetConnectionString("DefaultConection");
+            connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
         public async Task Crear(TipoCuenta tipoCuenta)
@@ -26,9 +28,9 @@ namespace Presupuestos.Servicios
             using var connection = new SqlConnection(connectionString);
 
             var id = await connection.QuerySingleAsync<int>
-                                                    (@"insert into TiposCuentas (Nombre, UsuarioId, Orden)
-                                                    values (@Nombre , @UsuarioId, 0);
-                                                    SELECT SCOPE_IDENTITY();", tipoCuenta);
+                                                    ("TiposCuentas_Insertar",
+                                                    new { usuarioId = tipoCuenta.UsuarioId,
+                                                    nombre = tipoCuenta.Nombre}, commandType: System.Data.CommandType.StoredProcedure);
 
             tipoCuenta.Id = id; 
         }
@@ -50,7 +52,8 @@ namespace Presupuestos.Servicios
             using var connection = new SqlConnection(connectionString);
             return await connection.QueryAsync<TipoCuenta>(@"SELECT Id, Nombre, Orden 
                                                             FROM TiposCuentas
-                                                            WHERE UsuarioId = @UsuarioId",
+                                                            WHERE UsuarioId = @UsuarioId
+                                                            ORDER BY Orden",
                                                             new {usuarioId });
         }
 
@@ -69,5 +72,23 @@ namespace Presupuestos.Servicios
                                                                             FROM TiposCuentas
                                                                             WHERE Id = @Id AND UsuarioId = @UsuarioId", new { id, usuarioId});
         }
+
+
+        public async Task Borrar(int id)
+        {
+            using var connection = new SqlConnection(connectionString);
+
+            await connection.ExecuteAsync(@"DELETE TiposCuentas 
+                                            WHERE Id = @Id", new { id });
+        }
+
+        public async Task Ordenar(IEnumerable<TipoCuenta> tiposCuentasOrdenados) 
+        {
+            var query = "UPDATE TiposCuentas SET Orden = @Orden WHERE Id = @Id;";
+            using var connection = new SqlConnection(connectionString);
+
+            await connection.ExecuteAsync(query, tiposCuentasOrdenados);
+        }
+
     }
 }

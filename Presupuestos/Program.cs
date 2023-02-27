@@ -2,11 +2,16 @@ using Presupuestos.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// SERVICIOS
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IRepositoriosTiposCuentas, RepositorioTiposCuentas>();
 builder.Services.AddTransient<IServicioUsuarios, ServicioUsuarios>();
+builder.Services.AddTransient<IRepositorioCuentas, RepositorioCuentas>();
+builder.Services.AddTransient<IRepositorioCategorias, RepositorioCategorias>();
+//Servicio Automapper
+builder.Services.AddAutoMapper(typeof (Program));
+
 
 var app = builder.Build();
 
