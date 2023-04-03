@@ -62,7 +62,7 @@ namespace Presupuestos.Servicios
         //Borrar
         public async Task Borrar(int id)
         {
-            using var connection = new SqlConnection();
+            using var connection = new SqlConnection(connectionString);
             await connection.ExecuteAsync
                 (@"Delete Categorias Where Id = @Id", new {id});
         }
